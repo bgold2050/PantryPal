@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Manual Entry | PantryPal{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="mb-4">Manually Add an Item</h1>
+    <p class="lead mb-4">Choose a category to begin:</p>
+
+    <div class="d-grid gap-3 col-12 col-md-6 mx-auto">
+        <a href="/manually/greens" class="btn btn-success btn-lg">🥬 Greens</a>
+        <a href="/manually/fruits" class="btn btn-danger btn-lg">🍓 Fruits</a>
+        <a href="/manually/vegetables" class="btn btn-warning btn-lg">🥕 Vegetables</a>
+    </div>
+</div>
+{% endblock %}

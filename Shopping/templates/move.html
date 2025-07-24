@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Move Item | PantryPal{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">🚚 Move Item Between Locations</h2>
+
+    <form action="{{ url_for('move_item') }}" method="post" class="card p-4 shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="mb-3">
+            <label for="item_id" class="form-label">Select Item to Move:</label>
+            <select class="form-select" id="item_id" name="item_id" required>
+                <option value="" disabled selected>Choose an item...</option>
+                {% for item in active_items %}
+                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} {{ item.unit }} in {{ item.location }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="new_location" class="form-label">Move to New Location:</label>
+            <select class="form-select" id="new_location" name="new_location" required>
+                <option value="" disabled selected>Select new location...</option>
+                <option value="fridge">Fridge</option>
+                <option value="freezer">Freezer</option>
+                <option value="pantry">Pantry</option>
+                <option value="counter">Counter</option>
+                <option value="garage">Garage</option> {# Added garage as an option #}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="new_expiration" class="form-label">Optional: New Expiration Date</label>
+            <input type="date" class="form-control" id="new_expiration" name="new_expiration">
+            <div class="form-text text-muted">Leave blank to keep current expiration date.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Confirm Move</button>
+    </form>
+</div>
+{% endblock %}

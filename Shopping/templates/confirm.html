@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm</title>
+</head>
+<body>
+    <h1>Confirm Item</h1>
+    <p>Item Name: {{ name }}</p>
+    <form method="post" action="/complete_item_info">
+        <input type="hidden" name="name" value="{{ name }}">
+        <button type="submit">Finalize</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Inventory | PantryPal{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h2 class="text-center mb-4">📦 Current Inventory</h2>
+
+  <form id="searchAndSortForm" action="{{ url_for('inventory') }}" method="GET">
+    <div class="row mb-3 justify-content-center g-2">
+      <div class="col-12 col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search by name..." name="search" value="{{ search_query or '' }}">
+          <button class="btn btn-outline-light" type="submit">🔍 Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="row mb-3 justify-content-center g-2">
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <label class="input-group-text" for="sort_by">Sort By:</label>
+          <select class="form-select" id="sort_by" name="sort_by" onchange="this.form.submit()">
+            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
+            <option value="expiration_date" {% if sort_by == 'expiration_date' %}selected{% endif %}>Expiration Date</option>
+            <option value="quantity" {% if sort_by == 'quantity' %}selected{% endif %}>Quantity</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-12 col-md-4"> {# Adjust column sizes as needed #}
+        <div class="input-group">
+          <label class="input-group-text" for="order">Order:</label>
+          <select class="form-select" id="order" name="order" onchange="this.form.submit()">
+            <option value="asc" {% if order == 'asc' %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if order == 'desc' %}selected{% endif %}>Descending</option>
+          </select>
+        </div>
+      </div>
+      {# Keep existing location filter if any #}
+      {% if location %}
+      <input type="hidden" name="location" value="{{ location }}">
+      {% endif %}
+      {# Keep existing search query if any, so sorting doesn't clear it #}
+      {% if search_query %}
+      <input type="hidden" name="search" value="{{ search_query }}">
+      {% endif %}
+    </div>
+  </form>
+
+  {% if items and items|length > 0 %}
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Location</th>
+          <th>Expires</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        {% set expiration_class = '' %}
+        {% if item.expiration_date %}
+            {# Parse the expiration date string into a datetime object #}
+            {% set exp_date_obj = item.expiration_date | parse_date %}
+            {% set today = now_func() %} {# Call the function here #}
+
+            {% if exp_date_obj %} {# Ensure parsing was successful #}
+                {% set days_diff = (exp_date_obj - today).days %}
+
+                {% if days_diff < 0 %} {# Past expiration #}
+                    {% set expiration_class = 'table-danger' %}
+                {% elif days_diff <= 2 %} {# 2 days or less until expiration #}
+                    {% set expiration_class = 'table-warning' %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <tr class="{{ expiration_class }}">
+          <td>{{ item.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unit }}</td>
+          <td>{{ item.location }}</td>
+          <td>{{ item.expiration_date or '—' }}</td>
+          <td>{{ item.category }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted text-center">Your inventory is currently empty.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Remove Item | PantryPal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4 text-center">🍽️ Remove Item from Inventory</h2>
+
+  {% if error %}
+    <div class="alert alert-danger text-center">{{ error }}</div>
+  {% endif %}
+
+  <form id="removeItemForm" method="POST" class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
+    <div class="mb-3">
+      <label for="item_id" class="form-label">Select Item</label>
+      <select name="item_id" id="item_id" class="form-select" required>
+        <option disabled selected>-- Choose an item --</option>
+        {% for item in items %}
+          <option value="{{ item.id }}" data-item-name="{{ item.name }}">{{ item.name.title() }} ({{ item.quantity }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="amount" class="form-label">Amount to Remove</label>
+      <input type="number" name="amount" id="amount" class="form-control" min="1" required>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="add_to_shopping_list_checkbox" name="add_to_shopping_list_checkbox" value="yes">
+      <label class="form-check-label" for="add_to_shopping_list_checkbox">Add to Shopping List?</label>
+    </div>
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-danger btn-lg">✅ Confirm Removal</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('removeItemForm').addEventListener('submit', function(event) {
+  const itemSelect = document.getElementById('item_id');
+  const selectedValue = itemSelect.value;
+  const errorDiv = document.getElementById('clientError');
+
+  // Check if no valid item selected (empty string or placeholder)
+  if (!selectedValue || selectedValue === "") {
+    event.preventDefault();
+    errorDiv.textContent = "⚠️ Please select an item before removing.";
+    errorDiv.style.display = "block";
+    itemSelect.focus();
+  } else {
+    errorDiv.style.display = "none";
+  }
+});
+</script>
+{% endblock %}

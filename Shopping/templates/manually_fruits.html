@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Add Fruit | PantryPal{% endblock %}
+
+{% block navbar %}{% endblock navbar %} {# ADD THIS LINE TO REMOVE NAVBAR #}
+
+{% block content %}
+<style>
+    .blank {
+        color: #969696  !important; /* lite gray */
+    }
+    .topp
+    {
+      padding-top: 2rem;
+    }
+</style>
+<div class="container">
+  <h2 class="text-center mb-4 topp">🍓 Add a Fruit</h2>
+
+  <form id="fruitForm" action="/add" method="post">
+    <input type="hidden" name="category" value="Fruits">
+
+    <div class="mb-3">
+      <label for="plu" class="form-label">PLU Code (optional)</label>
+      <input type="text" id="plu" name="plu" class="form-control" placeholder="e.g. 4011 for bananas">
+    </div>
+
+    <div class="text-center text-muted mb-2 blank">— or —</div>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Enter Item Name</label>
+      <input list="food-names" type="text" id="name" name="name" class="form-control">
+      <datalist id="food-names">
+        <option value="Apple">
+        <option value="Banana">
+        <option value="Strawberries">
+        <option value="Blueberries">
+        <option value="Spinach">
+        <option value="Carrots">
+        <option value="Romaine Lettuce">
+        <option value="Broccoli">
+        <option value="Kale">
+        <option value="Peppers">
+      </datalist>
+    </div>
+
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity</label>
+      <input type="number" id="quantity" name="quantity" min="1" step="1" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="unit" class="form-label">Unit</label>
+      <select id="unit" name="unit" class="form-select" required>
+        <option disabled selected>Select a unit</option>
+        <option>ounces</option>
+        <option>pounds</option>
+        <option>pints</option>
+        <option>pieces</option>
+        <option>containers</option>
+        <option>weight</option>
+        <option>count</option>
+        <option>bunchs</option>
+        <option>bags</option>
+        <option>boxs</option>
+        <option>cartons</option>
+        <option>baskets</option>
+        <option>bins</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="location" class="form-label">Storage Location</label>
+      <select id="location" name="location" class="form-select" required>
+        <option value="" disabled selected>Select a location</option>
+        <option value="fridge">Fridge</option>
+        <option value="freezer">Freezer</option>
+        <option value="pantry">Pantry</option>
+        <option value="counter">Counter</option>
+        <option value="garage">Garage</option>
+        <option value="deep freezer">Deep Freezer</option>
+        <option value="basement">Basement</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="expiration" class="form-label">Estimated Expiration Date</label>
+      <input type="date" id="expiration" name="expiration" class="form-control">
+      <div class="form-text blank">Leave blank to auto-set for 1 week from today</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">✅ Add to Inventory</button>
+  </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const pluInput = document.getElementById("plu");
+      const nameInput = document.getElementById("name");
+      const expirationInput = document.getElementById("expiration");
+      const quantityInput = document.getElementById("quantity");
+      const unitSelect = document.getElementById("unit");
+      const form = document.getElementById("fruitForm");
+
+      let validPLU = false;
+
+      // Auto-fill name from PLU code
+      pluInput.addEventListener("input", async function () {
+        const code = pluInput.value.trim();
+        if (code.length < 3) {
+          nameInput.disabled = false;
+          nameInput.value = "";
+          validPLU = false;
+          return;
+        }
+
+        try {
+          const response = await fetch(`/lookup_plu?plu=${code}`);
+          const data = await response.json();
+
+          if (data.name) {
+            nameInput.value = data.name;
+            nameInput.disabled = true;
+            validPLU = true;
+          } else {
+            nameInput.disabled = false;
+            validPLU = false;
+          }
+        } catch (error) {
+          console.error("PLU lookup failed:", error);
+          validPLU = false;
+        }
+      });
+
+      // Validate required fields
+      form.addEventListener("submit", function (e) {
+        const name = nameInput.value.trim();
+        const quantity = quantityInput.value.trim();
+        const unit = unitSelect.value;
+        const location = document.getElementById("location").value;
+
+        if (!validPLU && name === "") {
+          alert("Please enter a name or a valid PLU code.");
+          e.preventDefault();
+          return;
+        }
+
+        if (quantity === "" || parseInt(quantity) < 1) {
+          alert("Please enter a valid quantity.");
+          e.preventDefault();
+          return;
+        }
+
+        if (unit === "" || unit === "Select a unit") {
+          alert("Please select a unit.");
+          e.preventDefault();
+          return;
+        }
+        if (location === "" || location === "Select a location") {
+            alert("Please select a storage location.");
+            e.preventDefault();
+            return;
+        }
+
+        // Set default expiration date if empty
+        if (!expirationInput.value) {
+          const today = new Date();
+          today.setDate(today.getDate() + 7);
+          expirationInput.value = today.toISOString().split("T")[0];
+        }
+      });
+    });
+</script>
+
+{% endblock %}

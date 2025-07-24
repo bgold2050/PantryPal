@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Account Management | PantryPal{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">⚙️ Account Management</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card bg-secondary text-white p-4 shadow-sm">
+                <h4 class="mb-3">Change Username</h4>
+                <form action="/change_username" method="post">
+                    <div class="mb-3">
+                        <label for="new_username" class="form-label">New Username</label>
+                        <input type="text" class="form-control" id="new_username" name="new_username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="current_password_username" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password_username" name="current_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Username</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8 col-lg-6">
+            <div class="card bg-secondary text-white p-4 shadow-sm">
+                <h4 class="mb-3">Change Password</h4>
+                <form action="/change_password" method="post">
+                    <div class="mb-3">
+                        <label for="current_password_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password_password" name="current_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_new_password" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

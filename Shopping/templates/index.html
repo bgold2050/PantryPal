@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Home | PantryPal{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <img src="{{ url_for('static', filename='favicon.png') }}" alt="PantryPal Logo" class="img-fluid mb-4" style="max-width: 150px;">
+
+    <h1 class="mb-4">Welcome to PantryPal</h1>
+    <p class="lead mb-5">Track your food. Keep your kitchen organized. Never forget what you have again.</p>
+
+    <div class="d-grid gap-3 col-12 col-md-6 mx-auto">
+        {# Only show these buttons if a user is logged in #}
+        {% if session.user_id %}
+        <a href="/add" class="btn btn-primary btn-lg">➕ Add Food to Inventory</a>
+        <a href="/shopping" class="btn btn-warning btn-lg">🛒 Go to Shopping List</a>
+        <a href="/inventory" class="btn btn-success btn-lg">📦 View Current Inventory</a>
+        <a href="/history" class="btn btn-info btn-lg">🕒 View History</a>
+        <a href="/remove" class="btn btn-danger btn-lg w-100">🗑️ Remove or Use Food</a>
+        <a href="/move" class="btn btn-secondary btn-lg w-100">🚚 Move Item Location</a>
+        <a href="/recipes" class="btn btn-success btn-lg w-100">🍳 Get Recipe Suggestions</a> {# NEW BUTTON #}
+        <a href="/account" class="btn btn-light btn-lg w-100">⚙️ Account Settings</a>
+        {% else %}
+        <p class="lead">Please <a href="/login">log in</a> or <a href="/register">register</a> to start managing your pantry!</p>
+        {% endif %}
+    </div>
+
+    {# Dashboard Section - MOVED HERE #}
+    {% if session.user_id %}
+    <div class="container my-5"> {# Added my-5 for spacing from buttons #}
+        <h2 class="text-center mb-4">Your Pantry Dashboard</h2>
+        <div class="row g-4">
+            {# Total Food Items Card #}
+            <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3 h-100">
+                    <div class="card-header">Total Active Items</div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ total_food_items }}</h3>
+                        <p class="card-text">items currently in your inventory.</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Expiring Soon Card #}
+            <div class="col-md-4">
+                <div class="card text-white bg-warning mb-3 h-100">
+                    <div class="card-header">Expiring Soon (3 Days)</div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ num_expiring_soon }}</h3>
+                        <p class="card-text">items will expire within 3 days.</p>
+                        {% if expiring_soon_items %}
+                            <ul class="list-group list-group-flush bg-warning">
+                                {% for item in expiring_soon_items %}
+                                    <li class="list-group-item bg-warning text-dark d-flex justify-content-between align-items-center">
+                                        {{ item.name }}
+                                        <span class="badge bg-danger rounded-pill">{{ item.expiration_date }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Shopping List Needed Card #}
+            <div class="col-md-4">
+                <div class="card text-white bg-info mb-3 h-100">
+                    <div class="card-header">Shopping List</div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ shopping_list_needed }}</h3>
+                        <p class="card-text">items still needed on your shopping list.</p>
+                        <a href="/shopping" class="btn btn-light btn-sm mt-2">View Shopping List</a>
+                    </div>
+                </div>
+            </div>
+
+            {# Items by Location Card #}
+            <div class="col-md-6">
+                <div class="card text-white bg-secondary mb-3 h-100">
+                    <div class="card-header">Items by Location</div>
+                    <div class="card-body">
+                        {% if location_counts %}
+                            <ul class="list-group list-group-flush bg-secondary">
+                                {% for location, count in location_counts.items() %}
+                                    <li class="list-group-item bg-secondary text-white d-flex justify-content-between align-items-center">
+                                        {{ location.title() }}
+                                        <span class="badge bg-light text-dark rounded-pill">{{ count }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="card-text">No items categorized by location yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Recent Additions Card #}
+            <div class="col-md-6">
+                <div class="card text-white bg-dark mb-3 h-100">
+                    <div class="card-header">Recent Additions</div>
+                    <div class="card-body">
+                        {% if recent_additions %}
+                            <ul class="list-group list-group-flush bg-dark">
+                                {% for item in recent_additions %}
+                                    <li class="list-group-item bg-dark text-white">
+                                        <strong>{{ item.name }}</strong> ({{ item.quantity }} {{ item.unit }}) in {{ item.location.title() }}
+                                        {% if item.expiration_date %}<br><small>Expires: {{ item.expiration_date }}</small>{% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="card-text">No recent additions.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Recent Usage/Removals Card #}
+            <div class="col-md-12">
+                <div class="card text-white bg-dark mb-3 h-100">
+                    <div class="card-header">Recent Activity</div>
+                    <div class="card-body">
+                        {% if recent_usage %}
+                            <ul class="list-group list-group-flush bg-dark">
+                                {% for log in recent_usage %}
+                                    <li class="list-group-item bg-dark text-white">
+                                        <strong>{{ log.name }}</strong> - {{ log.action.title() }} {{ log.amount }}
+                                        <small class="float-end">{{ log.timestamp }}</small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="card-text">No recent activity.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

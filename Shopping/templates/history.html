@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}History | PantryPal{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h2 class="text-center mb-4">🕒 Inventory History</h2>
+
+  <form id="searchForm" action="{{ url_for('history') }}" method="GET" class="mb-3">
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Search by item name..." name="search" value="{{ search_query or '' }}">
+      <button class="btn btn-outline-light" type="submit">🔍 Search</button>
+    </div>
+  </form>
+
+  {% if items and items|length > 0 %}
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Location</th>
+          <th>Expiration Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.category }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unit }}</td>
+          <td>{{ item.location }}</td>
+          <td>{{ item.expiration_date or '—' }}</td>
+          <td>
+            {% if item.status == 'active' %}
+              <span class="badge bg-success">Active</span>
+            {% elif item.status == 'used' %}
+              <span class="badge bg-info">Used</span>
+            {% elif item.status == 'expired' %}
+              <span class="badge bg-danger">Expired</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ item.status }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted text-center">No history available.</p>
+  {% endif %}
+</div>
+{% endblock %}

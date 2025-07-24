@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirm Item | PantryPal</title>
+    <link rel="icon" type="image/x-icon" href="static/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+        .container {
+            margin-top: 20px; /* for space above the boxes */
+        }
+        .blank
+        {
+            color: #969696; /*lite gray*/
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="mb-4">✅ Confirm Scanned Item</h2>
+
+        <form method="post" action="/confirm" id="confirmItemForm">
+            <input type="hidden" name="category" value="Scanned">
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Item Name</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ name }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" step="1" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <select name="unit" id="unit" class="form-select" required>
+                    <option disabled selected value="">Select unit</option>
+                    <option>pieces</option>
+                    <option>boxes</option>
+                    <option>containers</option>
+                    <option>pounds</option>
+                    <option>bags</option>
+                    <option>bottles</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="location" class="form-label">Storage Location</label>
+                <select id="location" name="location" class="form-select" required>
+                    <option disabled selected value="">Select a location</option>
+                    <option value="fridge">Fridge</option>
+                    <option value="freezer">Freezer</option>
+                    <option value="pantry">Pantry</option>
+                    <option value="counter">Counter</option>
+                    <option value="garage">Garage</option>
+                    <option value="deep freezer">Deep Freezer</option>
+                    <option value="basement">Basement</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="expiration" class="form-label">Expiration Date</label>
+                <input type="date" id="expiration" name="expiration" class="form-control">
+                <div class="form-text blank">Leave blank to auto-set for 1 year from today</div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">📦 Add to Inventory</button>
+                <a href="/add" class="btn btn-outline-light">🔁 Scan Again</a><!--if item was miss scanned-->
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const expirationInput = document.getElementById("expiration");
+            const form = document.getElementById("confirmItemForm");
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const nameInput = document.getElementById("name");
+                const quantityInput = document.getElementById("quantity");
+                const unitSelect = document.getElementById("unit");
+                const locationSelect = document.getElementById("location");
+
+                let isValid = true;
+                let errorMessage = "";
+
+                if (nameInput.value.trim() === "") {
+                    errorMessage += "Item Name is required.\n";
+                    isValid = false;
+                }
+
+                const quantityValue = parseInt(quantityInput.value);
+                if (isNaN(quantityValue) || quantityValue <= 0) {
+                    errorMessage += "Quantity must be a positive number.\n";
+                    isValid = false;
+                }
+
+                if (unitSelect.value === "") {
+                    errorMessage += "Unit is required.\n";
+                    isValid = false;
+                }
+
+                if (locationSelect.value === "") {
+                    errorMessage += "Storage Location is required.\n";
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    alert("Please fill in all required fields:\n" + errorMessage);
+                    return;
+                }
+
+                if (!expirationInput.value) { //logic to add the date if non is put in
+                    const d = new Date();
+                    d.setDate(d.getDate() + 365);
+                    expirationInput.value = d.toISOString().split("T")[0];
+                }
+
+                form.submit();
+            });
+        });
+    </script>
+</body>
+</html>

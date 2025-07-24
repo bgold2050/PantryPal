@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Recipes | PantryPal{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="text-center mb-4">🍳 Recipe Suggestions</h2>
+
+    <div class="row mb-4 justify-content-center">
+        <div class="col-auto">
+            <a href="{{ url_for('recipes', type='all') }}" class="btn {% if search_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %} me-2">
+                Recipes from All Food
+            </a>
+            <a href="{{ url_for('recipes', type='expiring_soon') }}" class="btn {% if search_type == 'expiring_soon' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+                Recipes from Expiring Food
+            </a>
+        </div>
+    </div>
+
+    {% if recipes %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for recipe in recipes %}
+        <div class="col">
+            <div class="card h-100 bg-dark text-white">
+                <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.title }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-success me-1">Used: {{ recipe.usedIngredientCount }}</span>
+                        <span class="badge bg-danger">Missing: {{ recipe.missedIngredientCount }}</span>
+                    </p>
+                    {% if recipe.usedIngredients %}
+                        <p class="card-text small">
+                            <strong>Your Ingredients Used:</strong>
+                            {% for ingredient in recipe.usedIngredients %}
+                                {{ ingredient.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    {% if recipe.missedIngredients %}
+                        <p class="card-text small">
+                            <strong>Ingredients You'll Need:</strong>
+                            {% for ingredient in recipe.missedIngredients %}
+                                {{ ingredient.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}" target="_blank" class="btn btn-sm btn-outline-light w-100">View Recipe Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted text-center">No recipes to display based on your current selection. Try adding more items to your inventory or switching the search type.</p>
+    {% endif %}
+</div>
+{% endblock %}
